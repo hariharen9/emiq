@@ -3,17 +3,18 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Download, TrendingDown, Wallet, Landmark } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import type { EMIResult, NumberFormat } from "@/lib/loanCalculations";
+import type { EMIResult, NumberFormat, Currency } from "@/lib/loanCalculations";
 import { formatCurrency } from "@/lib/loanCalculations";
 
 interface ResultsPanelProps {
   result: EMIResult;
   principal: number;
   numberFormat: NumberFormat;
+  currency: Currency;
   printRef: React.RefObject<HTMLDivElement>;
 }
 
-function AnimatedNumber({ value, format }: { value: number; format: NumberFormat }) {
+function AnimatedNumber({ value, format, currency }: { value: number; format: NumberFormat; currency: Currency }) {
   const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
@@ -23,14 +24,14 @@ function AnimatedNumber({ value, format }: { value: number; format: NumberFormat
       onUpdate: (latest) => setDisplayValue(latest),
     });
     return () => controls.stop();
-  }, [value]);
+  }, [value, currency]);
 
-  return <>{formatCurrency(displayValue, format)}</>;
+  return <>{formatCurrency(displayValue, format, currency)}</>;
 }
 
-const COLORS = ["hsl(172, 66%, 40%)", "hsl(340, 65%, 55%)"];
+const COLORS = ["hsl(var(--primary))", "hsl(var(--chart-interest))"];
 
-export default function ResultsPanel({ result, principal, numberFormat, printRef }: ResultsPanelProps) {
+export default function ResultsPanel({ result, principal, numberFormat, currency, printRef }: ResultsPanelProps) {
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: "Loan_Summary_EMIQ",
@@ -55,7 +56,7 @@ export default function ResultsPanel({ result, principal, numberFormat, printRef
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
         <p className="text-sm font-bold text-muted-foreground mb-4 uppercase tracking-[0.2em]">Monthly EMI</p>
         <div className="hero-metric drop-shadow-sm">
-          <AnimatedNumber value={result.emi} format={numberFormat} />
+          <AnimatedNumber value={result.emi} format={numberFormat} currency={currency} />
         </div>
         <p className="text-xs font-semibold text-muted-foreground mt-4 opacity-60">Calculated for your specific tenure</p>
       </motion.div>
@@ -73,7 +74,7 @@ export default function ResultsPanel({ result, principal, numberFormat, printRef
             <span className="text-[10px] font-black uppercase tracking-widest">Principal</span>
           </div>
           <span className="text-2xl font-black text-foreground tabular-nums">
-            <AnimatedNumber value={principal} format={numberFormat} />
+            <AnimatedNumber value={principal} format={numberFormat} currency={currency} />
           </span>
         </motion.div>
 
@@ -88,7 +89,7 @@ export default function ResultsPanel({ result, principal, numberFormat, printRef
             <span className="text-[10px] font-black uppercase tracking-widest">Total Interest</span>
           </div>
           <span className="text-2xl font-black text-foreground tabular-nums">
-            <AnimatedNumber value={result.totalInterest} format={numberFormat} />
+            <AnimatedNumber value={result.totalInterest} format={numberFormat} currency={currency} />
           </span>
           <div className="flex items-center gap-1.5 mt-1">
             <div className="h-1 flex-1 bg-secondary rounded-full overflow-hidden">
@@ -114,7 +115,7 @@ export default function ResultsPanel({ result, principal, numberFormat, printRef
             <span className="text-[10px] font-black uppercase tracking-widest">Total Amount</span>
           </div>
           <span className="text-2xl font-black text-foreground tabular-nums">
-            <AnimatedNumber value={result.totalAmount} format={numberFormat} />
+            <AnimatedNumber value={result.totalAmount} format={numberFormat} currency={currency} />
           </span>
         </motion.div>
       </div>
@@ -139,7 +140,7 @@ export default function ResultsPanel({ result, principal, numberFormat, printRef
               
               return (
                 <p className="text-sm leading-relaxed text-foreground/80">
-                  Pay just <strong>{formatCurrency(extraPayment, numberFormat)} extra</strong> per month to save approx. <strong>{formatCurrency(interestSaved, numberFormat)}</strong> in interest and close your loan <strong>{monthsSaved} months</strong> early.
+                  Pay just <strong>{formatCurrency(extraPayment, numberFormat, currency)} extra</strong> per month to save approx. <strong>{formatCurrency(interestSaved, numberFormat, currency)}</strong> in interest and close your loan <strong>{monthsSaved} months</strong> early.
                 </p>
               );
             })()}
@@ -173,11 +174,11 @@ export default function ResultsPanel({ result, principal, numberFormat, printRef
                 strokeWidth={0}
               >
                 {donutData.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i]} />
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) => formatCurrency(value, numberFormat)}
+                formatter={(value: number) => formatCurrency(value, numberFormat, currency)}
                 contentStyle={{
                   background: "hsl(var(--card))",
                   border: "1px solid hsl(var(--border))",

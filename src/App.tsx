@@ -34,7 +34,7 @@ const App = () => {
       lenis.destroy();
     };
   }, []);
-...
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

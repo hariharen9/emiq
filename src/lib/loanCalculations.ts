@@ -133,15 +133,27 @@ export const bankRates: BankRate[] = [
 
 export type NumberFormat = "indian" | "western";
 
-export function formatCurrency(value: number, format: NumberFormat, customCurrency?: string): string {
-  const currencySymbol = customCurrency || (format === "indian" ? "₹" : "$");
-  const locale = format === "indian" ? "en-IN" : "en-US";
+export type Currency = "INR" | "USD" | "GBP" | "EUR" | "AED";
+
+export const currencies: Record<Currency, { symbol: string; locale: string }> = {
+  INR: { symbol: "₹", locale: "en-IN" },
+  USD: { symbol: "$", locale: "en-US" },
+  GBP: { symbol: "£", locale: "en-GB" },
+  EUR: { symbol: "€", locale: "de-DE" },
+  AED: { symbol: "د.إ", locale: "ar-AE" },
+};
+
+export function formatCurrency(value: number, format: NumberFormat, currency: Currency = "INR"): string {
+  const { symbol, locale } = currencies[currency];
+  // We use the format (indian/western) to determine the grouping logic, 
+  // but the specific locale of the currency for decimal symbols if needed.
+  const groupLocale = format === "indian" ? "en-IN" : "en-US";
   
-  const formatted = new Intl.NumberFormat(locale, {
+  const formatted = new Intl.NumberFormat(groupLocale, {
     maximumFractionDigits: 0,
   }).format(Math.round(value));
   
-  return `${currencySymbol}${formatted}`;
+  return format === "indian" || currency === "INR" ? `${symbol}${formatted}` : `${symbol}${formatted}`;
 }
 
 export interface LoanTypeConfig {

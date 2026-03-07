@@ -6,10 +6,11 @@ import ResultsPanel from "@/components/ResultsPanel";
 import AmortizationSchedule from "@/components/AmortizationSchedule";
 import BankComparison from "@/components/BankComparison";
 import { calculateEMI, loanTypes, formatCurrency } from "@/lib/loanCalculations";
-import type { LoanInput, NumberFormat } from "@/lib/loanCalculations";
+import type { LoanInput, NumberFormat, Currency } from "@/lib/loanCalculations";
 
 const Index = () => {
   const [numberFormat, setNumberFormat] = useState<NumberFormat>("indian");
+  const [currency, setCurrency] = useState<Currency>("INR");
   const [activeTab, setActiveTab] = useState("home");
   const [loanInput, setLoanInput] = useState<LoanInput>({
     principal: loanTypes.home.defaultPrincipal,
@@ -31,6 +32,7 @@ const Index = () => {
     const tenure = params.get("tenure");
     const type = params.get("type");
     const format = params.get("format") as NumberFormat;
+    const curr = params.get("currency") as Currency;
 
     if (type && loanTypes[type]) {
       setActiveTab(type);
@@ -48,6 +50,10 @@ const Index = () => {
     if (format === "indian" || format === "western") {
       setNumberFormat(format);
     }
+
+    if (curr) {
+      setCurrency(curr);
+    }
   }, []);
 
   useEffect(() => {
@@ -57,10 +63,11 @@ const Index = () => {
     params.set("tenure", loanInput.tenureMonths.toString());
     params.set("type", activeTab);
     params.set("format", numberFormat);
+    params.set("currency", currency);
     
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.replaceState({}, "", newUrl);
-  }, [loanInput, activeTab, numberFormat]);
+  }, [loanInput, activeTab, numberFormat, currency]);
 
   const result = useMemo(() => calculateEMI(loanInput), [loanInput]);
 
@@ -88,7 +95,12 @@ const Index = () => {
         />
       </div>
 
-      <Header numberFormat={numberFormat} onFormatChange={setNumberFormat} />
+      <Header 
+        numberFormat={numberFormat} 
+        onFormatChange={setNumberFormat}
+        currency={currency}
+        onCurrencyChange={setCurrency}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 relative z-10" ref={componentRef}>
         {/* Hero */}
@@ -173,6 +185,7 @@ const Index = () => {
                 loanInput={loanInput}
                 onChange={setLoanInput}
                 numberFormat={numberFormat}
+                currency={currency}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
               />
@@ -184,7 +197,7 @@ const Index = () => {
             <div className="glass-card p-6 grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Loan Amount</p>
-                <p className="text-xl font-bold">{formatCurrency(loanInput.principal, numberFormat)}</p>
+                <p className="text-xl font-bold">{formatCurrency(loanInput.principal, numberFormat, currency)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Interest Rate</p>
@@ -202,6 +215,7 @@ const Index = () => {
               result={result}
               principal={loanInput.principal}
               numberFormat={numberFormat}
+              currency={currency}
               printRef={componentRef}
             />
           </div>
@@ -215,7 +229,11 @@ const Index = () => {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
-          <AmortizationSchedule schedule={result.schedule} numberFormat={numberFormat} />
+          <AmortizationSchedule 
+            schedule={result.schedule} 
+            numberFormat={numberFormat} 
+            currency={currency}
+          />
         </motion.div>
 
         {/* Bank Comparison */}
@@ -226,7 +244,10 @@ const Index = () => {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
-          <BankComparison numberFormat={numberFormat} />
+          <BankComparison 
+            numberFormat={numberFormat} 
+            currency={currency}
+          />
         </motion.div>
 
         {/* Footer */}

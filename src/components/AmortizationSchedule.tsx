@@ -2,15 +2,16 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { AmortizationRow, NumberFormat } from "@/lib/loanCalculations";
+import type { AmortizationRow, NumberFormat, Currency } from "@/lib/loanCalculations";
 import { formatCurrency } from "@/lib/loanCalculations";
 
 interface AmortizationScheduleProps {
   schedule: AmortizationRow[];
   numberFormat: NumberFormat;
+  currency: Currency;
 }
 
-export default function AmortizationSchedule({ schedule, numberFormat }: AmortizationScheduleProps) {
+export default function AmortizationSchedule({ schedule, numberFormat, currency }: AmortizationScheduleProps) {
   const [viewMode, setViewMode] = useState<"yearly" | "monthly">("yearly");
   const [page, setPage] = useState(0);
   const perPage = 12;
@@ -98,7 +99,7 @@ export default function AmortizationSchedule({ schedule, numberFormat }: Amortiz
               />
               <Tooltip
                 cursor={{ stroke: 'hsl(var(--primary) / 0.2)', strokeWidth: 2 }}
-                formatter={(value: number) => formatCurrency(value, numberFormat)}
+                formatter={(value: number) => formatCurrency(value, numberFormat, currency)}
                 contentStyle={{
                   background: "hsl(var(--card))",
                   backdropFilter: "blur(20px)",
@@ -150,36 +151,39 @@ export default function AmortizationSchedule({ schedule, numberFormat }: Amortiz
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border/50">
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">
+                <th className="text-left px-4 py-3 font-black text-[10px] uppercase tracking-widest text-muted-foreground">
                   {viewMode === "yearly" ? "Year" : "Month"}
                 </th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Principal</th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Interest</th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Balance</th>
+                <th className="text-right px-4 py-3 font-black text-[10px] uppercase tracking-widest text-muted-foreground">Principal</th>
+                <th className="text-right px-4 py-3 font-black text-[10px] uppercase tracking-widest text-muted-foreground">Interest</th>
+                <th className="text-right px-4 py-3 font-black text-[10px] uppercase tracking-widest text-muted-foreground">Balance</th>
               </tr>
             </thead>
             <tbody>
               {pagedData.map((row: any, i: number) => (
-                <tr key={i} className="border-b border-border/30 hover:bg-secondary/30 transition-colors">
-                  <td className="px-4 py-3 font-mono text-foreground">
+                <tr key={i} className="border-b border-border/10 hover:bg-primary/[0.02] transition-colors group">
+                  <td className="px-4 py-3 font-black text-xs text-foreground group-hover:text-primary transition-colors tabular-nums">
                     {viewMode === "yearly" ? row.year : row.month}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-foreground">
+                  <td className="px-4 py-3 text-right font-black text-xs text-foreground tabular-nums">
                     {formatCurrency(
                       viewMode === "yearly" ? row.principal : row.principalPaid + (row.prepaymentPaid || 0),
-                      numberFormat
+                      numberFormat,
+                      currency
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-chart-interest">
+                  <td className="px-4 py-3 text-right font-black text-xs text-chart-interest tabular-nums">
                     {formatCurrency(
                       viewMode === "yearly" ? row.interest : row.interestPaid,
-                      numberFormat
+                      numberFormat,
+                      currency
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-foreground">
+                  <td className="px-4 py-3 text-right font-black text-xs text-foreground tabular-nums opacity-60">
                     {formatCurrency(
                       viewMode === "yearly" ? row.balance : row.closingBalance,
-                      numberFormat
+                      numberFormat,
+                      currency
                     )}
                   </td>
                 </tr>
@@ -189,21 +193,21 @@ export default function AmortizationSchedule({ schedule, numberFormat }: Amortiz
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-border/50">
+          <div className="flex items-center justify-between p-4 border-t border-border/50 bg-secondary/10">
             <button
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="p-2 rounded-lg bg-secondary text-secondary-foreground disabled:opacity-30 hover:bg-secondary/80 transition-all"
+              className="p-2 rounded-lg bg-background border border-border/50 text-foreground disabled:opacity-30 hover:bg-secondary transition-all"
             >
               <ChevronLeft size={14} />
             </button>
-            <span className="text-xs text-muted-foreground">
-              Page {page + 1} of {totalPages}
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+              Page {page + 1} / {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
-              className="p-2 rounded-lg bg-secondary text-secondary-foreground disabled:opacity-30 hover:bg-secondary/80 transition-all"
+              className="p-2 rounded-lg bg-background border border-border/50 text-foreground disabled:opacity-30 hover:bg-secondary transition-all"
             >
               <ChevronRight size={14} />
             </button>

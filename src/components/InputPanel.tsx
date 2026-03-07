@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Home, Car, GraduationCap, User, Briefcase, Coins, Building, Bike, CreditCard } from "lucide-react";
 import { useState } from "react";
-import type { LoanInput, NumberFormat, LoanTypeConfig } from "@/lib/loanCalculations";
-import { loanTypes, formatCurrency } from "@/lib/loanCalculations";
+import type { LoanInput, NumberFormat, LoanTypeConfig, Currency } from "@/lib/loanCalculations";
+import { loanTypes, currencies } from "@/lib/loanCalculations";
 
 const tabIcons: Record<string, React.ReactNode> = {
   home: <Home size={18} />,
@@ -20,6 +20,7 @@ interface InputPanelProps {
   loanInput: LoanInput;
   onChange: (input: LoanInput) => void;
   numberFormat: NumberFormat;
+  currency: Currency;
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
@@ -50,8 +51,8 @@ function SliderInput({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-muted-foreground">{label}</label>
-        <span className="text-sm font-mono font-semibold text-foreground">
+        <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{label}</label>
+        <span className="text-sm font-black text-foreground tabular-nums">
           {prefix}{displayValue}{suffix}
         </span>
       </div>
@@ -79,7 +80,7 @@ function SliderInput({
           background: `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${((value - min) / (max - min)) * 100}%, hsl(var(--secondary)) ${((value - min) / (max - min)) * 100}%, hsl(var(--secondary)) 100%)`,
         }}
       />
-      <div className="flex justify-between text-xs text-muted-foreground">
+      <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">
         <span>{prefix}{formatValue ? formatValue(min) : min}{suffix}</span>
         <span>{prefix}{formatValue ? formatValue(max) : max}{suffix}</span>
       </div>
@@ -87,10 +88,18 @@ function SliderInput({
   );
 }
 
-export default function InputPanel({ loanInput, onChange, numberFormat, activeTab, onTabChange }: InputPanelProps) {
+export default function InputPanel({ 
+  loanInput, 
+  onChange, 
+  numberFormat, 
+  currency,
+  activeTab, 
+  onTabChange 
+}: InputPanelProps) {
   const [tenureInYears, setTenureInYears] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const config = loanTypes[activeTab];
+  const currencySymbol = currencies[currency].symbol;
 
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
@@ -161,7 +170,7 @@ export default function InputPanel({ loanInput, onChange, numberFormat, activeTa
             min={100000}
             max={config.maxPrincipal}
             step={50000}
-            prefix={numberFormat === "indian" ? "₹" : "$"}
+            prefix={currencySymbol}
             onChange={(v) => onChange({ ...loanInput, principal: v })}
             formatValue={formatAmount}
           />
@@ -179,20 +188,20 @@ export default function InputPanel({ loanInput, onChange, numberFormat, activeTa
 
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-muted-foreground">Tenure in</span>
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Tenure in</span>
               <div className="flex bg-secondary/50 rounded-xl p-0.5">
                 <button
                   onClick={() => setTenureInYears(true)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                    tenureInYears ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                    tenureInYears ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground"
                   }`}
                 >
                   Years
                 </button>
                 <button
                   onClick={() => setTenureInYears(false)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                    !tenureInYears ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                    !tenureInYears ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground"
                   }`}
                 >
                   Months
@@ -216,13 +225,13 @@ export default function InputPanel({ loanInput, onChange, numberFormat, activeTa
       </AnimatePresence>
 
       {/* Advanced */}
-      <div className="border border-border/50 rounded-2xl overflow-hidden">
+      <div className="border border-border/50 rounded-3xl overflow-hidden glass-card">
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          className="w-full flex items-center justify-between px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
         >
-          Advanced Options
-          <motion.div animate={{ rotate: showAdvanced ? 180 : 0 }}>
+          Advanced Strategy
+          <motion.div animate={{ rotate: showAdvanced ? 180 : 0 }} transition={{ duration: 0.4, ease: "backOut" }}>
             <ChevronDown size={16} />
           </motion.div>
         </button>
@@ -232,39 +241,39 @@ export default function InputPanel({ loanInput, onChange, numberFormat, activeTa
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="overflow-hidden"
             >
-              <div className="px-5 pb-5 space-y-4">
-                <div className="flex gap-2">
+              <div className="px-6 pb-6 space-y-6">
+                <div className="flex gap-2 p-1 bg-secondary/30 rounded-2xl">
                   <button
                     onClick={() => onChange({ ...loanInput, prepaymentType: "yearly" })}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex-1 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                       loanInput.prepaymentType === "yearly"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-muted-foreground"
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                        : "text-muted-foreground hover:bg-secondary/50"
                     }`}
                   >
                     Yearly
                   </button>
                   <button
                     onClick={() => onChange({ ...loanInput, prepaymentType: "onetime" })}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex-1 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                       loanInput.prepaymentType === "onetime"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-muted-foreground"
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                        : "text-muted-foreground hover:bg-secondary/50"
                     }`}
                   >
                     One-time
                   </button>
                 </div>
                 <SliderInput
-                  label="Lump-sum Pre-payment"
+                  label="Pre-payment Amount"
                   value={loanInput.prepayment}
                   min={0}
                   max={loanInput.principal * 0.5}
                   step={10000}
-                  prefix={numberFormat === "indian" ? "₹" : "$"}
+                  prefix={currencySymbol}
                   onChange={(v) => onChange({ ...loanInput, prepayment: v })}
                   formatValue={formatAmount}
                 />

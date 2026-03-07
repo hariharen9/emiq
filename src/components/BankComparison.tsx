@@ -2,13 +2,14 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Search, ArrowRight, Landmark } from "lucide-react";
 import { bankRates, calculateEMI, formatCurrency } from "@/lib/loanCalculations";
-import type { BankRate, NumberFormat } from "@/lib/loanCalculations";
+import type { BankRate, NumberFormat, Currency } from "@/lib/loanCalculations";
 
 interface BankComparisonProps {
   numberFormat: NumberFormat;
+  currency: Currency;
 }
 
-export default function BankComparison({ numberFormat }: BankComparisonProps) {
+export default function BankComparison({ numberFormat, currency }: BankComparisonProps) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<BankRate[]>([]);
 
@@ -26,7 +27,7 @@ export default function BankComparison({ numberFormat }: BankComparisonProps) {
     });
   };
 
-  const comparisonPrincipal = numberFormat === "indian" ? 5000000 : 100000;
+  const comparisonPrincipal = currency === "INR" ? 5000000 : 100000;
   const comparisonTenure = 240;
 
   const comparisons = useMemo(() => {
@@ -113,7 +114,7 @@ export default function BankComparison({ numberFormat }: BankComparisonProps) {
               Market Analysis
             </p>
             <p className="text-sm font-bold text-muted-foreground mb-12">
-              Competitive benchark for {formatCurrency(comparisonPrincipal, numberFormat)} loan over {comparisonTenure / 12} years
+              Competitive benchmark for {formatCurrency(comparisonPrincipal, numberFormat, currency)} loan over {comparisonTenure / 12} years
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 mb-12">
@@ -126,17 +127,17 @@ export default function BankComparison({ numberFormat }: BankComparisonProps) {
                   
                   <div className="space-y-1">
                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Monthly EMI</p>
-                    <p className="text-4xl font-black text-foreground tabular-nums tracking-tighter">{formatCurrency(result.emi, numberFormat)}</p>
+                    <p className="text-4xl font-black text-foreground tabular-nums tracking-tighter">{formatCurrency(result.emi, numberFormat, currency)}</p>
                   </div>
                   
                   <div className="pt-6 border-t border-border/20 space-y-4">
                     <div className="flex justify-between items-center">
                       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Interest</p>
-                      <p className="text-base font-black text-chart-interest tabular-nums tracking-tighter">{formatCurrency(result.totalInterest, numberFormat)}</p>
+                      <p className="text-base font-black text-chart-interest tabular-nums tracking-tighter">{formatCurrency(result.totalInterest, numberFormat, currency)}</p>
                     </div>
                     <div className="flex justify-between items-center">
                       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Repayment</p>
-                      <p className="text-base font-black text-foreground tabular-nums tracking-tighter">{formatCurrency(result.totalAmount, numberFormat)}</p>
+                      <p className="text-base font-black text-foreground tabular-nums tracking-tighter">{formatCurrency(result.totalAmount, numberFormat, currency)}</p>
                     </div>
                   </div>
                 </div>
@@ -163,7 +164,7 @@ export default function BankComparison({ numberFormat }: BankComparisonProps) {
                       Financial Advantage: {cheaper}
                     </p>
                     <p className="text-sm font-semibold text-muted-foreground leading-relaxed">
-                      By opting for {cheaper}, you will reduce your interest obligation by <strong className="text-primary font-black">{formatCurrency(diff, numberFormat)}</strong>. This surplus capital could be reinvested to further accelerate your wealth creation.
+                      By opting for {cheaper}, you will reduce your interest obligation by <strong className="text-primary font-black">{formatCurrency(diff, numberFormat, currency)}</strong>. This surplus capital could be reinvested to further accelerate your wealth creation.
                     </p>
                   </div>
                 </motion.div>

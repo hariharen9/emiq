@@ -1,11 +1,14 @@
 import { useState, useCallback, useEffect } from "react";
-import { Moon, Sun, IndianRupee, DollarSign } from "lucide-react";
-import { motion } from "framer-motion";
-import type { NumberFormat } from "@/lib/loanCalculations";
+import { Moon, Sun, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import type { NumberFormat, Currency } from "@/lib/loanCalculations";
+import { currencies } from "@/lib/loanCalculations";
 
 interface HeaderProps {
   numberFormat: NumberFormat;
   onFormatChange: (f: NumberFormat) => void;
+  currency: Currency;
+  onCurrencyChange: (c: Currency) => void;
 }
 
 export const Logo = ({ className = "w-10 h-10" }: { className?: string }) => (
@@ -17,7 +20,6 @@ export const Logo = ({ className = "w-10 h-10" }: { className?: string }) => (
           <stop offset="100%" stopColor="hsl(var(--primary) / 0.8)" />
         </linearGradient>
       </defs>
-      {/* Outer Q Ring */}
       <circle cx="50" cy="50" r="40" fill="none" stroke="url(#logoGrad)" strokeWidth="8" strokeLinecap="round" className="opacity-20" />
       <motion.path
         d="M50 10 A40 40 0 1 1 50 90 A40 40 0 1 1 50 10"
@@ -29,7 +31,6 @@ export const Logo = ({ className = "w-10 h-10" }: { className?: string }) => (
         animate={{ pathLength: 1 }}
         transition={{ duration: 1.5, ease: "easeInOut" }}
       />
-      {/* Q Tail / Growth Line */}
       <motion.path
         d="M75 75 L95 95"
         stroke="url(#logoGrad)"
@@ -39,7 +40,6 @@ export const Logo = ({ className = "w-10 h-10" }: { className?: string }) => (
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ duration: 0.8, delay: 1 }}
       />
-      {/* Inner IQ Brain/Node */}
       <motion.circle
         cx="50"
         cy="45"
@@ -63,10 +63,16 @@ export const Logo = ({ className = "w-10 h-10" }: { className?: string }) => (
   </div>
 );
 
-export default function Header({ numberFormat, onFormatChange }: HeaderProps) {
+export default function Header({ 
+  numberFormat, 
+  onFormatChange, 
+  currency, 
+  onCurrencyChange 
+}: HeaderProps) {
   const [dark, setDark] = useState(() =>
     typeof window !== "undefined" && document.documentElement.classList.contains("dark")
   );
+  const [showCurrencies, setShowCurrencies] = useState(false);
 
   const toggleDark = useCallback(() => {
     setDark((d) => {
@@ -77,7 +83,6 @@ export default function Header({ numberFormat, onFormatChange }: HeaderProps) {
   }, []);
 
   useEffect(() => {
-    // Check system preference on mount
     if (window.matchMedia("(prefers-color-scheme: dark)").matches && !document.documentElement.classList.contains("dark")) {
       document.documentElement.classList.add("dark");
       setDark(true);
@@ -99,6 +104,46 @@ export default function Header({ numberFormat, onFormatChange }: HeaderProps) {
         </motion.div>
 
         <div className="flex items-center gap-3">
+          <div className="relative">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowCurrencies(!showCurrencies)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-secondary/50 text-secondary-foreground text-sm font-bold transition-all hover:bg-secondary border border-border/50"
+            >
+              <span className="text-primary">{currencies[currency].symbol}</span>
+              <span className="tracking-tight">{currency}</span>
+              <ChevronDown size={14} className={`transition-transform duration-300 ${showCurrencies ? "rotate-180" : ""}`} />
+            </motion.button>
+
+            <AnimatePresence>
+              {showCurrencies && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full mt-2 right-0 w-32 glass-card-elevated overflow-hidden z-50 !rounded-2xl border border-border/50 bg-background/90 backdrop-blur-xl"
+                >
+                  {(Object.keys(currencies) as Currency[]).map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => {
+                        onCurrencyChange(c);
+                        setShowCurrencies(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left text-xs font-black tracking-widest hover:bg-primary/10 transition-colors border-b border-border/10 last:border-0 ${
+                        currency === c ? "text-primary bg-primary/5" : "text-foreground/70"
+                      }`}
+                    >
+                      <span className="mr-2 text-primary">{currencies[c].symbol}</span>
+                      {c}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -106,11 +151,7 @@ export default function Header({ numberFormat, onFormatChange }: HeaderProps) {
             className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-secondary/50 text-secondary-foreground text-sm font-bold transition-all hover:bg-secondary border border-border/50"
             title="Toggle number format"
           >
-            {numberFormat === "indian" ? (
-              <><IndianRupee size={16} /> <span className="tracking-tight">IND</span></>
-            ) : (
-              <><DollarSign size={16} /> <span className="tracking-tight">INT</span></>
-            )}
+            <span className="font-black">{numberFormat === "indian" ? "IND" : "INT"}</span>
           </motion.button>
 
           <motion.button
