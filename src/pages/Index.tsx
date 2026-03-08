@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { Globe, Github, Linkedin } from "lucide-react";
 import Header, { Logo } from "@/components/Header";
 import InputPanel from "@/components/InputPanel";
 import ResultsPanel from "@/components/ResultsPanel";
@@ -73,7 +74,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background overflow-hidden relative">
       {/* Dynamic Background Elements */}
-      <div className="absolute top-0 inset-x-0 h-screen w-full pointer-events-none z-0 overflow-hidden">
+      <div className="absolute top-0 inset-x-0 h-screen w-full pointer-events-none z-0 overflow-hidden no-print">
         <motion.div 
           className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px]"
           animate={{ 
@@ -94,21 +95,41 @@ const Index = () => {
         />
       </div>
 
-      <Header 
-        numberFormat={numberFormat} 
-        onFormatChange={setNumberFormat}
-        currency={currency}
-        onCurrencyChange={setCurrency}
-      />
+      <div className="no-print">
+        <Header 
+          numberFormat={numberFormat} 
+          onFormatChange={setNumberFormat}
+          currency={currency}
+          onCurrencyChange={setCurrency}
+        />
+      </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 sm:pt-40 sm:pb-20 relative z-10" ref={componentRef}>
-        {/* Hero */}
+        
+        {/* Professional Print Header */}
+        <div className="hidden print:flex flex-col gap-6 mb-12 border-b-2 border-primary/20 pb-8">
+          <div className="flex justify-between items-end">
+            <div className="flex items-center gap-4">
+              <Logo className="w-12 h-12" />
+              <div>
+                <h1 className="text-3xl font-black tracking-tighter text-foreground leading-none">EMIQ</h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Intelligence Quotient v2.0</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loan Strategy Report</p>
+              <p className="text-sm font-bold text-foreground">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Hero - Screen only */}
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-12 sm:mb-32"
+          className="text-center mb-12 sm:mb-32 no-print"
         >
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -169,6 +190,28 @@ const Index = () => {
           >
             The definitive global tool for <span className="text-foreground font-bold italic">intelligent</span> loan planning and market benchmarking.
           </motion.p>
+
+          {/* Trust Architecture Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1 }}
+            className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 mt-16 sm:mt-24 px-4 no-print"
+          >
+            {[
+              { label: "Zero Ads", icon: "✨" },
+              { label: "Zero Tracking", icon: "🛡️" },
+              { label: "No Login", icon: "⚡" },
+              { label: "Always Free", icon: "💎" }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2 group cursor-default">
+                <span className="text-base sm:text-lg group-hover:scale-120 transition-transform duration-500">{item.icon}</span>
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60 group-hover:text-primary transition-colors duration-500">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
         </motion.div>
 
         {/* Calculator Grid */}
@@ -178,7 +221,7 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="w-full lg:w-[40%] print:hidden shrink-0">
+          <div className="w-full lg:w-[40%] no-print shrink-0">
             <div className="sticky top-28 w-full">
               <InputPanel
                 loanInput={loanInput}
@@ -191,20 +234,25 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Print only summary of inputs */}
-          <div className="hidden print:block w-full mb-8">
-            <div className="glass-card p-6 grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Loan Amount</p>
-                <p className="text-xl font-bold">{formatCurrency(loanInput.principal, numberFormat, currency)}</p>
+          {/* Professional Print Summary */}
+          <div className="hidden print:block w-full mb-12">
+            <h2 className="section-title !mt-0 !mb-6 text-primary uppercase">Configuration Summary</h2>
+            <div className="grid grid-cols-2 gap-y-8 gap-x-12 border-2 border-primary/5 p-8 rounded-[2rem] bg-primary/[0.01]">
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Loan Category</p>
+                <p className="text-2xl font-black text-foreground capitalize">{activeTab} Loan</p>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Interest Rate</p>
-                <p className="text-xl font-bold">{loanInput.annualRate}%</p>
+              <div className="space-y-1 text-right">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Principal Amount</p>
+                <p className="text-2xl font-black text-foreground tabular-nums">{formatCurrency(loanInput.principal, numberFormat, currency)}</p>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Tenure</p>
-                <p className="text-xl font-bold">{loanInput.tenureMonths / 12} Years</p>
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Interest Rate</p>
+                <p className="text-2xl font-black text-foreground tabular-nums">{loanInput.annualRate}%</p>
+              </div>
+              <div className="space-y-1 text-right">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Repayment Tenure</p>
+                <p className="text-2xl font-black text-foreground tabular-nums">{loanInput.tenureMonths / 12} Years <span className="text-sm font-bold text-muted-foreground opacity-50">({loanInput.tenureMonths} Mo)</span></p>
               </div>
             </div>
           </div>
@@ -237,10 +285,59 @@ const Index = () => {
         </motion.div>
 
         {/* Footer */}
-        <footer className="text-center py-12 border-t border-border/20">
-          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">
-            EMIQ Intelligent Planning Engine
-          </p>
+        <footer className="pt-20 pb-12 border-t border-border/20 no-print">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 px-4">
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <span className="text-xl font-black tracking-tighter text-foreground">
+                EMI<span className="text-primary">Q</span>
+              </span>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">
+                Intelligent Planning Engine
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center gap-6">
+                <a 
+                  href="https://hariharen.site" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-300"
+                  title="Website"
+                >
+                  <Globe size={20} />
+                </a>
+                <a 
+                  href="https://github.com/hariharen9" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-300"
+                  title="GitHub"
+                >
+                  <Github size={20} />
+                </a>
+                <a 
+                  href="https://linkedin.com/in/hariharen9" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-300"
+                  title="LinkedIn"
+                >
+                  <Linkedin size={20} />
+                </a>
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+                Crafted by <a href="https://hariharen.site" className="text-foreground hover:text-primary transition-colors">Hariharen</a>
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center md:items-end gap-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                MIT License • © 2026
+              </p>
+              <div className="h-1 w-12 bg-primary/20 rounded-full" />
+            </div>
+          </div>
         </footer>
       </main>
     </div>

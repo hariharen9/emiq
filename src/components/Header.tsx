@@ -100,8 +100,7 @@ export default function Header({
           <motion.div
             className="flex items-center gap-2 sm:gap-3 shrink-0"
           >
-            <Logo className="w-6 h-6 sm:w-8 sm:h-8" />
-            <span className="text-lg sm:text-xl font-black tracking-tighter text-foreground hidden xs:inline-block">
+            <span className="text-xl sm:text-2xl font-black tracking-tighter text-foreground">
               EMI<span className="text-primary">Q</span>
             </span>
           </motion.div>

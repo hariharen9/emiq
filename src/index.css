@@ -159,3 +159,88 @@
     @apply glass-card p-6 flex flex-col gap-2;
   }
 }
+
+@layer utilities {
+  @media print {
+    @page {
+      size: A4;
+      margin: 1.5cm;
+    }
+
+    body {
+      background: white !important;
+      color: black !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .glass-card, .glass-card-elevated {
+      background: white !important;
+      border: 1px solid #e2e8f0 !important;
+      backdrop-filter: none !important;
+      box-shadow: none !important;
+      border-radius: 1rem !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    .premium-slider, .premium-input, .tab-button, button, .no-print {
+      display: none !important;
+    }
+
+    .text-primary {
+      color: #0d9488 !important; /* Force teal for brand */
+    }
+
+    .hero-metric {
+      background: none !important;
+      -webkit-text-fill-color: black !important;
+      color: black !important;
+      font-size: 3rem !important;
+      page-break-inside: avoid !important;
+    }
+
+    .section-title {
+      font-size: 1.5rem !important;
+      margin-top: 2rem !important;
+      border-bottom: 2px solid #f1f5f9 !important;
+      padding-bottom: 0.5rem !important;
+      page-break-after: avoid !important;
+    }
+
+    table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      page-break-inside: auto !important;
+    }
+
+    tr {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    thead {
+      display: table-header-group !important;
+    }
+
+    th, td {
+      border-bottom: 1px solid #f1f5f9 !important;
+      padding: 0.75rem !important;
+    }
+
+    .print-header {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin-bottom: 3rem !important;
+      border-bottom: 1px solid #e2e8f0 !important;
+      padding-bottom: 1rem !important;
+    }
+
+    /* Force the detailed schedule to start on a new page if it's too long */
+    .print-new-page {
+      page-break-before: always !important;
+      break-before: page !important;
+    }
+  }
+}

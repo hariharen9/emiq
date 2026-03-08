@@ -59,7 +59,7 @@ export default function AmortizationSchedule({ schedule, numberFormat, currency 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="space-y-6"
+      className="space-y-6 print-new-page"
     >
       <h2 className="section-title">Amortization Schedule</h2>
 
