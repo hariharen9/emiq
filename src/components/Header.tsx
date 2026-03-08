@@ -90,7 +90,7 @@ export default function Header({
   }, []);
 
   return (
-    <div className="fixed top-4 sm:top-6 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
+    <div className="fixed top-12 sm:top-6 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

@@ -131,7 +131,7 @@ const Index = () => {
         />
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 sm:pt-40 sm:pb-20 relative z-10" ref={componentRef}>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12 sm:pt-40 sm:pb-20 relative z-10" ref={componentRef}>
         
         {/* Professional Print Header */}
         <div className="hidden print:flex flex-col gap-6 mb-12 border-b-2 border-primary/20 pb-8">
