@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Globe, Github, Linkedin } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { Globe, Github, Linkedin, X, Heart, Shield, Zap } from "lucide-react";
 import Header, { Logo } from "@/components/Header";
 import InputPanel from "@/components/InputPanel";
 import ResultsPanel from "@/components/ResultsPanel";
@@ -12,6 +12,8 @@ const Index = () => {
   const [numberFormat, setNumberFormat] = useState<NumberFormat>("indian");
   const [currency, setCurrency] = useState<Currency>("INR");
   const [activeTab, setActiveTab] = useState("home");
+  const [time, setTime] = useState(new Date());
+  const [showStory, setShowStory] = useState(false);
   const [loanInput, setLoanInput] = useState<LoanInput>({
     principal: loanTypes.home.defaultPrincipal,
     annualRate: loanTypes.home.defaultRate,
@@ -23,6 +25,11 @@ const Index = () => {
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Sync state with URL
   useEffect(() => {
@@ -73,6 +80,26 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background overflow-hidden relative">
+      {/* Top Status Bar */}
+      <div className="fixed top-0 left-0 right-0 z-[60] px-6 py-2 flex justify-between items-center pointer-events-none no-print">
+        <motion.div 
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-primary/60"
+        >
+          {time.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-primary/60 tabular-nums"
+        >
+          {time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+        </motion.div>
+      </div>
+
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 inset-x-0 h-screen w-full pointer-events-none z-0 overflow-hidden no-print">
         <motion.div 
@@ -110,7 +137,9 @@ const Index = () => {
         <div className="hidden print:flex flex-col gap-6 mb-12 border-b-2 border-primary/20 pb-8">
           <div className="flex justify-between items-end">
             <div className="flex items-center gap-4">
-              <Logo className="w-12 h-12" />
+              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground font-black text-xl">E</span>
+              </div>
               <div>
                 <h1 className="text-3xl font-black tracking-tighter text-foreground leading-none">EMIQ</h1>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Intelligence Quotient v2.0</p>
@@ -196,23 +225,117 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 mt-16 sm:mt-24 px-4 no-print"
+            className="flex flex-col items-center gap-8 mt-16 sm:mt-24 px-4 no-print"
           >
-            {[
-              { label: "Zero Ads", icon: "✨" },
-              { label: "Zero Tracking", icon: "🛡️" },
-              { label: "No Login", icon: "⚡" },
-              { label: "Always Free", icon: "💎" }
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2 group cursor-default">
-                <span className="text-base sm:text-lg group-hover:scale-120 transition-transform duration-500">{item.icon}</span>
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60 group-hover:text-primary transition-colors duration-500">
-                  {item.label}
-                </span>
-              </div>
-            ))}
+            <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8">
+              {[
+                { label: "Zero Ads", icon: "✨" },
+                { label: "Zero Tracking", icon: "🛡️" },
+                { label: "No Login", icon: "⚡" },
+                { label: "Always Free", icon: "💎" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-2 group cursor-default">
+                  <span className="text-base sm:text-lg group-hover:scale-120 transition-transform duration-500">{item.icon}</span>
+                  <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60 group-hover:text-primary transition-colors duration-500">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowStory(true)}
+              className="px-6 py-2.5 rounded-full bg-primary/5 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary/10 transition-all"
+            >
+              Why I built this website
+            </motion.button>
           </motion.div>
         </motion.div>
+
+        {/* Story Modal */}
+        <AnimatePresence>
+          {showStory && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowStory(false)}
+                className="absolute inset-0 bg-background/80 backdrop-blur-md"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-2xl glass-card-elevated p-8 sm:p-12 overflow-hidden max-h-[90vh] overflow-y-auto"
+              >
+                <button 
+                  onClick={() => setShowStory(false)}
+                  className="absolute top-6 right-6 p-2 rounded-full bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X size={20} />
+                </button>
+
+                <div className="space-y-8">
+                  <div className="space-y-2">
+                    <h2 className="text-3xl sm:text-4xl font-black tracking-tighter text-foreground text-center sm:text-left">The Inception of <span className="text-primary">EMIQ</span></h2>
+                    <div className="h-1 w-12 bg-primary rounded-full mx-auto sm:mx-0" />
+                  </div>
+
+                  <div className="space-y-6 text-muted-foreground leading-relaxed text-base sm:text-lg">
+                    <p>
+                      The internet is flooded with loan calculators, but almost all of them share the same DNA: they are designed to sell you something. Whether it's aggressive ads, intrusive tracking, or mandatory logins to "save" your data, the focus is never on the user's financial clarity.
+                    </p>
+                    
+                    <p>
+                      I built <strong>EMIQ</strong> because I needed a tool that was fast, precise, and most importantly, <span className="text-foreground font-bold">private</span>. I wanted an interface that didn't feel like a spreadsheet, but like a high-end financial instrument—where the math is transparent and the insights are strategic.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 py-4">
+                      <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-2">
+                        <div className="flex items-center gap-2 text-primary">
+                          <Shield size={18} />
+                          <span className="text-xs font-black uppercase tracking-widest">Privacy First</span>
+                        </div>
+                        <p className="text-xs font-semibold">Your data never leaves your device. 100% client-side calculation.</p>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-2">
+                        <div className="flex items-center gap-2 text-primary">
+                          <Zap size={18} />
+                          <span className="text-xs font-black uppercase tracking-widest">Always Utility</span>
+                        </div>
+                        <p className="text-xs font-semibold">No ads, no leads, no spam. Just pure financial intelligence.</p>
+                      </div>
+                    </div>
+
+                    <p>
+                      This project is my contribution to the open financial web. I plan to keep <strong>EMIQ</strong> free, ad-free, and open-source forever. It will remain a clean utility for anyone from first-time homebuyers to global investors who values their time and financial sanity.
+                    </p>
+                  </div>
+
+                  <div className="pt-8 border-t border-border/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <Heart size={20} fill="currentColor" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Created by</p>
+                        <p className="text-sm font-bold text-foreground">Hariharen</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <a href="https://github.com/hariharen9" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><Github size={20} /></a>
+                      <a href="https://linkedin.com/in/hariharen9" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><Linkedin size={20} /></a>
+                      <a href="https://hariharen.site" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><Globe size={20} /></a>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* Calculator Grid */}
         <motion.div 
@@ -333,7 +456,14 @@ const Index = () => {
 
             <div className="flex flex-col items-center md:items-end gap-2">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-                MIT License • © 2026
+                <a 
+                  href="https://github.com/hariharen9/emiq/blob/main/LICENSE" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  MIT License
+                </a> • © 2026
               </p>
               <div className="h-1 w-12 bg-primary/20 rounded-full" />
             </div>
