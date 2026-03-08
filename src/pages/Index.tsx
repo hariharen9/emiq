@@ -4,7 +4,6 @@ import Header, { Logo } from "@/components/Header";
 import InputPanel from "@/components/InputPanel";
 import ResultsPanel from "@/components/ResultsPanel";
 import AmortizationSchedule from "@/components/AmortizationSchedule";
-import BankComparison from "@/components/BankComparison";
 import { calculateEMI, loanTypes, formatCurrency } from "@/lib/loanCalculations";
 import type { LoanInput, NumberFormat, Currency } from "@/lib/loanCalculations";
 
@@ -102,20 +101,20 @@ const Index = () => {
         onCurrencyChange={setCurrency}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 relative z-10" ref={componentRef}>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 sm:pt-40 sm:pb-20 relative z-10" ref={componentRef}>
         {/* Hero */}
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-16 sm:mb-32"
+          className="text-center mb-12 sm:mb-32"
         >
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-12"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-8 sm:mb-12"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -125,7 +124,7 @@ const Index = () => {
           </motion.div>
 
           <div className="flex flex-col items-center justify-center">
-            <h1 className="text-6xl sm:text-8xl lg:text-9xl font-black tracking-tighter text-foreground leading-[0.8] mb-8 flex items-baseline">
+            <h1 className="text-5xl sm:text-8xl lg:text-9xl font-black tracking-tighter text-foreground leading-[0.9] mb-6 sm:mb-8 flex items-baseline">
               <motion.span
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -152,13 +151,13 @@ const Index = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="flex items-center gap-4 mb-8"
+              className="flex items-center gap-3 sm:gap-4 mb-8"
             >
-              <div className="h-px w-8 bg-border" />
-              <p className="text-xs font-black uppercase tracking-[0.4em] text-muted-foreground">
+              <div className="h-px w-4 sm:w-8 bg-border" />
+              <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-muted-foreground whitespace-nowrap">
                 Equated Monthly <span className="text-foreground">Intelligence</span>
               </p>
-              <div className="h-px w-8 bg-border" />
+              <div className="h-px w-4 sm:w-8 bg-border" />
             </motion.div>
           </div>
 
@@ -166,7 +165,7 @@ const Index = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.8 }}
-            className="text-muted-foreground font-medium text-lg sm:text-2xl max-w-3xl mx-auto print:hidden leading-relaxed tracking-tight"
+            className="text-muted-foreground font-medium text-base sm:text-2xl max-w-3xl mx-auto print:hidden leading-relaxed tracking-tight px-4"
           >
             The definitive global tool for <span className="text-foreground font-bold italic">intelligent</span> loan planning and market benchmarking.
           </motion.p>
@@ -174,13 +173,13 @@ const Index = () => {
 
         {/* Calculator Grid */}
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-24"
+          className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-24 w-full"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="lg:col-span-5 print:hidden">
-            <div className="sticky top-28">
+          <div className="w-full lg:w-[40%] print:hidden shrink-0">
+            <div className="sticky top-28 w-full">
               <InputPanel
                 loanInput={loanInput}
                 onChange={setLoanInput}
@@ -193,7 +192,7 @@ const Index = () => {
           </div>
           
           {/* Print only summary of inputs */}
-          <div className="hidden print:block col-span-12 mb-8">
+          <div className="hidden print:block w-full mb-8">
             <div className="glass-card p-6 grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Loan Amount</p>
@@ -210,12 +209,13 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-7 col-span-12">
+          <div className="w-full lg:w-[60%] flex-grow min-w-0">
             <ResultsPanel
               result={result}
               principal={loanInput.principal}
               numberFormat={numberFormat}
               currency={currency}
+              activeTab={activeTab}
               printRef={componentRef}
             />
           </div>
@@ -231,20 +231,6 @@ const Index = () => {
         >
           <AmortizationSchedule 
             schedule={result.schedule} 
-            numberFormat={numberFormat} 
-            currency={currency}
-          />
-        </motion.div>
-
-        {/* Bank Comparison */}
-        <motion.div 
-          className="mb-24 print:hidden"
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <BankComparison 
             numberFormat={numberFormat} 
             currency={currency}
           />

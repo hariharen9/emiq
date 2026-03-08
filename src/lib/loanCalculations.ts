@@ -11,6 +11,7 @@ export interface EMIResult {
   totalInterest: number;
   totalAmount: number;
   schedule: AmortizationRow[];
+  minIncome: number;
 }
 
 export interface AmortizationRow {
@@ -28,7 +29,7 @@ export function calculateEMI(input: LoanInput): EMIResult {
   const { principal, annualRate, tenureMonths, prepayment, prepaymentType } = input;
 
   if (principal <= 0 || annualRate <= 0 || tenureMonths <= 0) {
-    return { emi: 0, totalInterest: 0, totalAmount: 0, schedule: [] };
+    return { emi: 0, totalInterest: 0, totalAmount: 0, schedule: [], minIncome: 0 };
   }
 
   const monthlyRate = annualRate / 12 / 100;
@@ -77,58 +78,85 @@ export function calculateEMI(input: LoanInput): EMIResult {
     totalInterest: Math.round(totalInterest * 100) / 100,
     totalAmount: Math.round((principal + totalInterest) * 100) / 100,
     schedule,
+    minIncome: Math.round((emi / 0.4) * 100) / 100, // 40% EMI-to-income heuristic
   };
 }
 
 export interface BankRate {
   name: string;
-  rate: number;
-  type: string;
   country: "IN" | "GLOBAL";
-  logo?: string;
+  rates: {
+    home?: number;
+    car?: number;
+    personal?: number;
+    business?: number;
+    gold?: number;
+    education?: number;
+    bike?: number;
+    property?: number;
+    credit?: number;
+  };
+  type: string;
+  lastUpdated: string;
 }
 
 export const bankRates: BankRate[] = [
-  // India - Public Sector
-  { name: "SBI", rate: 8.4, type: "EBLR", country: "IN" },
-  { name: "Bank of Baroda", rate: 8.4, type: "RLLR", country: "IN" },
-  { name: "PNB", rate: 8.45, type: "RLLR", country: "IN" },
-  { name: "Canara Bank", rate: 8.5, type: "RLLR", country: "IN" },
-  { name: "Union Bank", rate: 8.35, type: "EBLR", country: "IN" },
-  
-  // India - Private Sector
-  { name: "HDFC Bank", rate: 8.75, type: "RLLR", country: "IN" },
-  { name: "ICICI Bank", rate: 8.75, type: "EBLR", country: "IN" },
-  { name: "Axis Bank", rate: 8.75, type: "MCLR", country: "IN" },
-  { name: "Kotak Mahindra", rate: 8.7, type: "RLLR", country: "IN" },
-  { name: "IDFC First", rate: 8.85, type: "EBLR", country: "IN" },
-  { name: "IndusInd Bank", rate: 8.95, type: "EBLR", country: "IN" },
-  { name: "Federal Bank", rate: 8.8, type: "RLLR", country: "IN" },
-  
-  // India - NBFCs
-  { name: "LIC Housing", rate: 8.5, type: "Fixed/Float", country: "IN" },
-  { name: "Bajaj Finserv", rate: 8.6, type: "Floating", country: "IN" },
-  { name: "Tata Capital", rate: 8.7, type: "Floating", country: "IN" },
-  { name: "Godrej Housing", rate: 8.55, type: "Floating", country: "IN" },
-
-  // Global - USA
-  { name: "Chase", rate: 6.75, type: "Fixed 30Y", country: "GLOBAL" },
-  { name: "Bank of America", rate: 6.82, type: "Fixed 30Y", country: "GLOBAL" },
-  { name: "Wells Fargo", rate: 6.9, type: "Fixed 30Y", country: "GLOBAL" },
-  { name: "Rocket Mortgage", rate: 6.65, type: "Fixed 30Y", country: "GLOBAL" },
-  
-  // Global - UK/Europe
-  { name: "HSBC", rate: 4.2, type: "Fixed 5Y", country: "GLOBAL" },
-  { name: "Barclays", rate: 4.35, type: "Fixed 5Y", country: "GLOBAL" },
-  { name: "Santander", rate: 4.4, type: "Variable", country: "GLOBAL" },
-  { name: "BNP Paribas", rate: 3.8, type: "Fixed", country: "GLOBAL" },
-  
-  // Global - Asia/Pacific
-  { name: "DBS Bank", rate: 3.75, type: "Fixed", country: "GLOBAL" },
-  { name: "OCBC", rate: 3.85, type: "Floating", country: "GLOBAL" },
-  { name: "UOB", rate: 3.8, type: "Fixed", country: "GLOBAL" },
-  { name: "NAB Australia", rate: 6.1, type: "Variable", country: "GLOBAL" },
-  { name: "CommBank", rate: 6.15, type: "Variable", country: "GLOBAL" },
+  {
+    name: "SBI",
+    country: "IN",
+    type: "EBLR",
+    lastUpdated: "2026-03-01",
+    rates: { home: 8.4, car: 8.7, personal: 11.0, gold: 9.0, education: 8.5, bike: 12.5, property: 9.5 }
+  },
+  {
+    name: "HDFC Bank",
+    country: "IN",
+    type: "RLLR",
+    lastUpdated: "2026-03-01",
+    rates: { home: 8.75, car: 9.1, personal: 10.5, business: 15.0, gold: 9.5, credit: 36.0 }
+  },
+  {
+    name: "ICICI Bank",
+    country: "IN",
+    type: "EBLR",
+    lastUpdated: "2026-03-01",
+    rates: { home: 8.75, car: 9.1, personal: 10.75, business: 14.5, gold: 9.2, property: 10.0 }
+  },
+  {
+    name: "LIC Housing",
+    country: "IN",
+    type: "Fixed/Float",
+    lastUpdated: "2026-02-25",
+    rates: { home: 8.5, property: 9.75 }
+  },
+  {
+    name: "Bajaj Finserv",
+    country: "IN",
+    type: "Floating",
+    lastUpdated: "2026-03-01",
+    rates: { personal: 12.99, business: 16.0, gold: 10.0, property: 10.5 }
+  },
+  {
+    name: "Chase",
+    country: "GLOBAL",
+    type: "Fixed",
+    lastUpdated: "2026-03-01",
+    rates: { home: 6.75, car: 5.9, personal: 9.5, business: 8.0 }
+  },
+  {
+    name: "HSBC",
+    country: "GLOBAL",
+    type: "Variable",
+    lastUpdated: "2026-03-01",
+    rates: { home: 4.2, personal: 7.5, business: 6.5, credit: 18.0 }
+  },
+  {
+    name: "DBS Bank",
+    country: "GLOBAL",
+    type: "Fixed",
+    lastUpdated: "2026-03-01",
+    rates: { home: 3.75, car: 2.5, personal: 6.0, business: 5.5 }
+  }
 ];
 
 export type NumberFormat = "indian" | "western";
@@ -145,15 +173,13 @@ export const currencies: Record<Currency, { symbol: string; locale: string }> = 
 
 export function formatCurrency(value: number, format: NumberFormat, currency: Currency = "INR"): string {
   const { symbol, locale } = currencies[currency];
-  // We use the format (indian/western) to determine the grouping logic, 
-  // but the specific locale of the currency for decimal symbols if needed.
   const groupLocale = format === "indian" ? "en-IN" : "en-US";
   
   const formatted = new Intl.NumberFormat(groupLocale, {
     maximumFractionDigits: 0,
   }).format(Math.round(value));
   
-  return format === "indian" || currency === "INR" ? `${symbol}${formatted}` : `${symbol}${formatted}`;
+  return `${symbol}${formatted}`;
 }
 
 export interface LoanTypeConfig {

@@ -30,13 +30,23 @@ export default function AmortizationSchedule({ schedule, numberFormat, currency 
   }, [schedule]);
 
   const chartData = useMemo(() => {
-    return yearlyData.map((y) => ({
-      name: `Yr ${y.year}`,
-      Balance: Math.round(y.balance),
-      Principal: Math.round(y.principal),
-      Interest: Math.round(y.interest),
+    if (viewMode === "yearly") {
+      return yearlyData.map((y) => ({
+        name: `Yr ${y.year}`,
+        Balance: Math.round(y.balance),
+        Principal: Math.round(y.principal),
+        Interest: Math.round(y.interest),
+      }));
+    }
+    // Monthly view - sampling data if tenure is very long to maintain performance
+    const step = schedule.length > 60 ? Math.ceil(schedule.length / 60) : 1;
+    return schedule.filter((_, i) => i % step === 0).map((m) => ({
+      name: `Mo ${m.month}`,
+      Balance: Math.round(m.closingBalance),
+      Principal: Math.round(m.principalPaid + (m.prepaymentPaid || 0)),
+      Interest: Math.round(m.interestPaid),
     }));
-  }, [yearlyData]);
+  }, [viewMode, yearlyData, schedule]);
 
   const tableData = viewMode === "yearly" ? yearlyData : schedule;
   const totalPages = Math.ceil(tableData.length / perPage);
