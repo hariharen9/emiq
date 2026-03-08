@@ -217,7 +217,7 @@ const Index = () => {
             transition={{ duration: 1, delay: 0.8 }}
             className="text-muted-foreground font-medium text-base sm:text-2xl max-w-3xl mx-auto print:hidden leading-relaxed tracking-tight px-4"
           >
-            The definitive global tool for <span className="text-foreground font-bold italic">intelligent</span> loan planning and market benchmarking.
+            The definitive global tool for <span className="text-foreground font-bold italic tracking-tighter text-primary"> intelligent &nbsp;</span> loan planning and market benchmarking.
           </motion.p>
 
           {/* Trust Architecture Section */}
